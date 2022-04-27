@@ -38,11 +38,9 @@ def _parse_args():
     parser.add_argument("count", default=2)
     return parser.parse_args()
 
-# @profile 
-def main():
-    args = _parse_args()
+# Sorting function based on count to be returned and chunk size in bytes
+def sort_file(count, nbytes):
     sorted_files = []
-    nbytes = 1 << 20            # 1048576 bytes at a time to be used in memory
     for lines in iter(partial(sys.stdin.readlines, nbytes), []):
         lines.sort(key=key_func, reverse=True) 
         f = TemporaryFile("w+")
@@ -52,12 +50,22 @@ def main():
 
     merged_list =  list(merge(*sorted_files, key=key_func, reverse=True))   # merge the sorted temporary files based on key function
 
-    sys.stdout.writelines([f'{x.split(" ")[0]}\n' for x in merged_list[0:int(args.count)]])     # write into stdout the "COUNT" largest elements  
+    sys.stdout.writelines([f'{x.split(" ")[0]}\n' for x in merged_list[0:int(count)]])     # write into stdout the "COUNT" largest elements  
 
     # clean up
     for f in sorted_files:
         f.close()
 
+# @profile 
+def main():
+    args = _parse_args() 
+    count = int(args.count)
+    nbytes = 1 << 20 
+    if count >= 0:
+        sort_file(count, nbytes)           # 1048576 bytes at a time to be used in memory
+    else:
+        raise ValueError("Negative count not allowed.")
+    
 main()
 
 # cProfile.run("main()")
