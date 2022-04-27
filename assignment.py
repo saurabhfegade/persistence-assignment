@@ -1,14 +1,25 @@
 """
+This script is reading the input from the file input.txt and writing the output to the file output.txt. 
+It reads the input file in chunks of 1MB, sorts each chunk in memory, writes the sorted chunk to a temporary file, 
+then merges the sorted chunks using the heapq.merge function.
+    
+:param line: The line to be sorted
+:return: The "COUNT" largest elements
+
 Usage: 
 From the command line - python assignment.py 5 < input.txt > output.txt
 Here 5 is the count to return 5 largest numbers
-"""
 
+Time complexity: nlog(n)
+Space complexity: O(n) 
+"""
 from argparse import ArgumentParser
 import sys
 from functools import partial
 from heapq import merge
 from tempfile import TemporaryFile
+# import cProfile
+# from memory_profiler import profile
 
 # sorting criteria
 def key_func(line):
@@ -19,10 +30,15 @@ def key_func(line):
 
 # take count by parsing arguments
 def _parse_args():
+    """
+    It parses the command line arguments and returns them as a dictionary
+    :return: The number of arguments passed in.
+    """
     parser = ArgumentParser()
     parser.add_argument("count", default=2)
     return parser.parse_args()
 
+# @profile 
 def main():
     args = _parse_args()
     sorted_files = []
@@ -43,3 +59,5 @@ def main():
         f.close()
 
 main()
+
+# cProfile.run("main()")
